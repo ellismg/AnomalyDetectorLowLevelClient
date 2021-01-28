@@ -11,7 +11,7 @@ namespace Azure.AI.AnomalyDetector.Protocol
 {
     public class AnomalyDetectorClient
     {
-        public Uri Endpoint { get; }
+        public virtual Uri Endpoint { get; }
         private HttpPipeline HttpPipeline { get; }
 
         private static readonly Encoding Utf8NoBom = new UTF8Encoding(false, true);
@@ -22,6 +22,9 @@ namespace Azure.AI.AnomalyDetector.Protocol
 
         private const string AuthorizationHeader = "Ocp-Apim-Subscription-Key";
 
+        protected AnomalyDetectorClient()
+        {
+        }
 
         public AnomalyDetectorClient(Uri endpoint, AzureKeyCredential credential) : this(endpoint, credential, new AnomalyDetectorClientOptions())
         {
@@ -44,13 +47,13 @@ namespace Azure.AI.AnomalyDetector.Protocol
         }
 
         // DESIGN(matell): Should we be modeling the body parameter as "dynamic" and not "object" in the input case like this?
-        public async Task<DynamicResponse> DetectEntireSeriesAsync(object body, CancellationToken cancellationToken = default) {
+        public virtual async Task<DynamicResponse> DetectEntireSeriesAsync(object body, CancellationToken cancellationToken = default) {
             DynamicRequest req = DetectEntireSeriesRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
 
             return await req.SendAsync(cancellationToken).ConfigureAwait(false);
         }
-        public DynamicResponse DetectEntireSeries(object body, CancellationToken cancellationToken = default)
+        public virtual  DynamicResponse DetectEntireSeries(object body, CancellationToken cancellationToken = default)
         {
             DynamicRequest req = DetectEntireSeriesRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
@@ -60,7 +63,7 @@ namespace Azure.AI.AnomalyDetector.Protocol
         // NOTE(matell): The `body` parameter here is elided, because the expectation is when you are using this overload to construct a DynamicRequest, you're always
         // go to set the body explicitly on the object (to take advantage of the IntelliSense magic that comes from DynamicRequest). If there were query or path parameters,
         // we should include them them as arguments to this method, to build out as much of the request as we can.
-        public DynamicRequest DetectEntireSeriesRequest() 
+        public virtual DynamicRequest DetectEntireSeriesRequest() 
         {
             Request req = HttpPipeline.CreateRequest();
             req.Method = RequestMethod.Post;
@@ -75,21 +78,21 @@ namespace Azure.AI.AnomalyDetector.Protocol
             return new DynamicRequest(req, HttpPipeline);
         }
 
-        public async Task<DynamicResponse> DetectLastPointAsync(object body, CancellationToken cancellationToken = default) 
+        public virtual  async Task<DynamicResponse> DetectLastPointAsync(object body, CancellationToken cancellationToken = default) 
         {
             DynamicRequest req = DetectLastPointRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
 
             return await req.SendAsync(cancellationToken).ConfigureAwait(false);
         }
-        public DynamicResponse DetectLastPoint(object body, CancellationToken cancellationToken = default)
+        public virtual DynamicResponse DetectLastPoint(object body, CancellationToken cancellationToken = default)
         {
             DynamicRequest req = DetectLastPointRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
 
             return req.Send(cancellationToken);
         }
-        public DynamicRequest DetectLastPointRequest()
+        public virtual DynamicRequest DetectLastPointRequest()
         {
             Request req = HttpPipeline.CreateRequest();
             req.Method = RequestMethod.Post;
@@ -104,20 +107,20 @@ namespace Azure.AI.AnomalyDetector.Protocol
             return new DynamicRequest(req, HttpPipeline);
         }
 
-        public async Task<DynamicResponse> DetectChangePointAsync(object body, CancellationToken cancellationToken = default)
+        public virtual  async Task<DynamicResponse> DetectChangePointAsync(object body, CancellationToken cancellationToken = default)
         {
             DynamicRequest req = DetectChangePointRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
 
             return await req.SendAsync(cancellationToken).ConfigureAwait(false);
         }
-        public DynamicResponse DetectChangePoint(object body, CancellationToken cancellationToken = default) {
+        public virtual  DynamicResponse DetectChangePoint(object body, CancellationToken cancellationToken = default) {
             DynamicRequest req = DetectChangePointRequest();
             req.Content = RequestContent.Create(Utf8NoBom.GetBytes(JsonSerializer.Serialize(body, body.GetType(), SerializerOptions)));
 
             return req.Send(cancellationToken);
         }
-        public DynamicRequest DetectChangePointRequest()
+        public virtual DynamicRequest DetectChangePointRequest()
         {
             Request req = HttpPipeline.CreateRequest();
             req.Method = RequestMethod.Post;
