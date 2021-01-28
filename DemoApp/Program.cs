@@ -2,6 +2,7 @@
 using Azure;
 using Azure.AI.AnomalyDetector.Protocol;
 using Azure.Core;
+using dotenv.net;
 
 namespace DemoApp
 {
@@ -9,7 +10,11 @@ namespace DemoApp
     {
         static void Main(string[] args)
         {
-            AnomalyDetectorClient client = new AnomalyDetectorClient(new Uri("https://<your-resource-name-here>.cognitiveservices.azure.com/"), new AzureKeyCredential("<your-key-here>"));
+            DotEnv.AutoConfig();
+
+            AnomalyDetectorClient client = new AnomalyDetectorClient(
+                new Uri(Environment.GetEnvironmentVariable("ANOMALY_DECTECTOR_API_ENDPOINT")), 
+                new AzureKeyCredential(Environment.GetEnvironmentVariable("ANOMALY_DECTECTOR_API_KEY")));
 
             // ref: https://westus2.dev.cognitive.microsoft.com/docs/services/AnomalyDetector/operations/post-timeseries-entire-detect, the request here matches the sample.
             DynamicResponse res = client.DetectEntireSeriesAsync(new
@@ -216,9 +221,9 @@ namespace DemoApp
             // TODO(matell): This is kinda tedious, I think we need to be able to make this cleaner.
             if (res.GetRawResponse().Status == 200)
             {
-                foreach (DynamicJson isAnomaly in res.Content.isAnomaly)
+                foreach (bool isAnomaly in res.Content.isAnomaly)
                 {
-                    Console.WriteLine(isAnomaly.GetBoolean());
+                    Console.WriteLine(isAnomaly);
                 }
             }
             else if (res.GetRawResponse().Status == 400)
